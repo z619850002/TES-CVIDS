@@ -1,0 +1,9 @@
+Vec3i chunkID
+Vec3i numVoxels
+float64 resolution
+DistVoxel[] voxels
+int32 lengthVoxels
+ColorVoxel[] colors
+int32[] indices
+int32 lengthColors
+geometry_msgs/Vector3 origin

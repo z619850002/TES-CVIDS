@@ -1,0 +1,6 @@
+<launch>
+    
+    
+    <include file="$(find vins_estimator)/launch/multi_agent_azure_server.launch"/>
+    <include file="$(find server_pose_graph)/launch/azure_rosbag.launch"/>
+</launch>

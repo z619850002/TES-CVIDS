@@ -1,0 +1,5 @@
+<launch>
+    
+    
+    <include file="$(find vins_estimator)/launch/multi_agent_rosbag_azure_data2.launch"/>
+</launch>

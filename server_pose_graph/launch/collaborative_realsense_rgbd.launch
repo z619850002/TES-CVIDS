@@ -1,0 +1,7 @@
+<launch>
+    
+    
+    <include file="$(find vins_estimator)/launch/multi_agent_realsense.launch"/>
+    <include file="$(find vins_estimator)/launch/multi_agent_realsense_server.launch"/>
+    <include file="$(find vins_estimator)/launch/multi_agent_rosbag_realsense_rgbd.launch"/>
+</launch>
