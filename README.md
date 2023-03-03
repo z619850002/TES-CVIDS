@@ -1,43 +1,25 @@
-## RGBD-Inertial Trajectory Estimation and Mapping for Small Ground Rescue Robot
-Based one open source SLAM framework [VINS-Mono](https://github.com/HKUST-Aerial-Robotics/VINS-Mono).
+# TES-CVIDS: A Transmission Efficient Sub-map based Collaborative Dense VI-SLAM Framework
 
-The approach contains
-+ Depth-integrated visual-inertial initialization process.
-+ Visual-inertial odometry by utilizing depth information while avoiding the limitation is working for 3D pose estimation.
-+ Noise elimination map which is suitable for path planning and navigation.
+# 1. Prerequisites
+We have tested the library in **Ubuntu 16**, but it should be easy to compile in other platforms.
 
-However, the proposed approach can also be applied to other application like handheld and wheeled robot.
+## C++11 or C++0x Compiler
+We use the new thread and chrono functionalities of C++11.
 
-## 1. Prerequisites
-1.1. **Ubuntu** 16.04 or 18.04.
+## ROS-Kinetic
+CVIDS is implemented based on ROS-Kinetic. More details can be found in http://wiki.ros.org/kinetic/Installation.
 
-1.2. **ROS** version Kinetic or Melodic fully installation
+## Sophus
+This is an Lie algebra library. More details can be found in https://github.com/strasdat/Sophus.
 
-1.3. **Ceres Solver**
-Follow [Ceres Installation](http://ceres-solver.org/installation.html)
+## OpenCV
+We use [OpenCV](http://opencv.org) to manipulate images and features. Dowload and install instructions can be found at: http://opencv.org. **We use 3.4.1, but it should also work for other version at least 3.0**.
 
-1.4. **Sophus**
-```
-  git clone http://github.com/strasdat/Sophus.git
-  git checkout a621ff
-```
+## Eigen3
+Download and install instructions can be found at: http://eigen.tuxfamily.org.
 
-
-## 2. Datasets
-Recording by RealSense D435i. Contain 9 bags in three different applicaions:
-+ [Handheld](https://star-center.shanghaitech.edu.cn/seafile/d/0ea45d1878914077ade5/)
-+ [Wheeled robot](https://star-center.shanghaitech.edu.cn/seafile/d/78c0375114854774b521/) ([Jackal](https://www.clearpathrobotics.com/jackal-small-unmanned-ground-vehicle/))
-+ [Tracked robot](https://star-center.shanghaitech.edu.cn/seafile/d/f611fc44df0c4b3d936d/)
-
-Note the rosbags are in compressed format. Use "rosbag decompress" to decompress.
-
-Topics:
-+ depth topic: /camera/aligned_depth_to_color/image_raw
-+ color topic: /camera/color/image_raw
-+ imu topic: /camera/imu
+## ceres-solver
+We use [ceres](http://www.ceres-solver.org/) library to perform non-linear optimizations.
 
 
 
-
-## 3. Licence
-The source code is released under [GPLv3](http://www.gnu.org/licenses/) license.
