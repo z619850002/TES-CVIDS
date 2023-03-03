@@ -177,6 +177,7 @@ private:
 	ros::Publisher m_iDepthCameraInfoPublisher;
 	ros::Publisher m_iColorCameraInfoPublisher;
 	ros::Publisher m_iPointCloudPublisher;
+	ros::Publisher m_iDenseMeshPublisher;
 
 	//Subscriber
 	ros::Subscriber m_iAgentSubscriber;

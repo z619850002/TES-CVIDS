@@ -39,8 +39,7 @@ CollaborativeServer::CollaborativeServer(string aVocFile, vector<string> gAllCon
     this->m_pPoseGraph = new ServerPoseGraph();
     this->m_pPoseGraph->m_aProjectPath = this->m_aProjectPath;
     this->m_pPoseGraph->LoadVocabulary(aVocFile);
-    this->m_pGlobalMap = new ServerGlobalMap(this->m_pPoseGraph);
-
+    
     //Initialize the plotter.
     this->m_pPlotter = new ServerPlotter();
     this->m_pPoseGraph->SetPlotter(this->m_pPlotter);
@@ -57,7 +56,13 @@ CollaborativeServer::CollaborativeServer(string aVocFile, vector<string> gAllCon
     this->m_iDepthCameraInfoPublisher = iNodeHandler.advertise<sensor_msgs::CameraInfo>("depth/image_info",1000);
     this->m_iColorCameraInfoPublisher = iNodeHandler.advertise<sensor_msgs::CameraInfo>("rgb/image_info",1000);
     this->m_iPointCloudPublisher = iNodeHandler.advertise<sensor_msgs::PointCloud2>("point_cloud2",1000);
+    this->m_iDenseMeshPublisher= iNodeHandler.advertise<visualization_msgs::Marker>("/Chisel/full_mesh",1);
 
+
+    this->m_pGlobalMap = new ServerGlobalMap(this->m_pPoseGraph);
+
+
+    this->m_pGlobalMap->BindPublisher(&this->m_iDenseMeshPublisher);
     //Save the mesh
 
     // this->m_iSaveMeshClient = iNodeHandler.serviceClient<chisel_ros::SaveMeshService>("/Chisel/SaveMesh");
@@ -103,10 +108,18 @@ CollaborativeServer::CollaborativeServer(string aVocFile, vector<string> gAllCon
     this->m_iDepthCameraInfoPublisher = iNodeHandler.advertise<sensor_msgs::CameraInfo>("depth/image_info",1000);
     this->m_iColorCameraInfoPublisher = iNodeHandler.advertise<sensor_msgs::CameraInfo>("rgb/image_info",1000);
     this->m_iPointCloudPublisher = iNodeHandler.advertise<sensor_msgs::PointCloud2>("point_cloud2",1000);
+    this->m_iDenseMeshPublisher= iNodeHandler.advertise<visualization_msgs::Marker>("/Chisel/full_mesh",1000);
 
+
+
+
+
+    this->m_pGlobalMap = new ServerGlobalMap(this->m_pPoseGraph);
+    // this->m_iSaveMeshClient = iNodeHandler.serviceClient<chisel_ros::SaveMeshService>("/Chisel/SaveMesh");
+
+    this->m_pGlobalMap->BindPublisher(&this->m_iDenseMeshPublisher);
     //Save the mesh
 
-    // this->m_iSaveMeshClient = iNodeHandler.serviceClient<chisel_ros::SaveMeshService>("/Chisel/SaveMesh");
   
  
 }    

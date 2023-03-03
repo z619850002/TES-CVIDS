@@ -78,6 +78,9 @@ chisel::Transform GenerateTransform(Eigen::Affine3d mTransform);
 
 namespace chisel{
 
+chisel::Vec3 LAMBERT(const chisel::Vec3 &n, const chisel::Vec3 &light);
+
+
 float Norms(Vec3 mVec);
 
 

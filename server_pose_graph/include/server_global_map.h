@@ -199,6 +199,8 @@ public:
 
 		this->MergeToGlobalMap(pSubMap);
 
+		this->SendMeshes();
+
 
 	}
 
@@ -231,29 +233,32 @@ public:
 		
 		// }
 
+		this->m_mChiselMutex.lock();
 		chisel::MergeChunks(this->m_pGlobalChisel, pSubMap->m_pChisel, mPoseAffineFloat_wc);
+		this->m_mChiselMutex.unlock();
 		cout << "Finish merge chunks!" << endl;
 
-		if (this->m_gMessageBuf.size() <=5 && this->m_gSubMaps.size() > 1){
+		// if (this->m_gMessageBuf.size() <=5 && this->m_gSubMaps.size() > 1){
 
-			int nIndex = this->m_gSubMaps.size();
-			stringstream ss;
-			string aIndex = "";
-			ss << nIndex;
-			ss >> aIndex;
-			// string aPath = "/home/kyrie/Documents/DataSet/Submap/";
-			string aTotalFilename = this->m_aProjectPath  + "/final_inverse.ply";
-			for (int i=0;i<10;i++){
-				cout << "SavePath is: " << aTotalFilename << endl;
-			}
-			// this->m_pGlobalChisel->GetMutableChunkManager().CutChunks(1.3);
+		// 	int nIndex = this->m_gSubMaps.size();
+		// 	stringstream ss;
+		// 	string aIndex = "";
+		// 	ss << nIndex;
+		// 	ss >> aIndex;
+		// 	// string aPath = "/home/kyrie/Documents/DataSet/Submap/";
+		// 	string aTotalFilename = this->m_aProjectPath  + "/final_inverse.ply";
+		// 	for (int i=0;i<10;i++){
+		// 		cout << "SavePath is: " << aTotalFilename << endl;
+		// 	}
+		// 	// this->m_pGlobalChisel->GetMutableChunkManager().CutChunks(1.3);
 
-			this->m_pGlobalChisel->UpdateMeshesInstantly();
-			this->m_pGlobalChisel->SaveAllMeshesToPLY(aTotalFilename);
-			// this->SavePoseGraph();
-		}else {
-			cout << "Message buf size: " << this->m_gMessageBuf.size() << endl;
-		}
+
+		// 	this->m_pGlobalChisel->UpdateMeshesInstantly();
+		// 	this->m_pGlobalChisel->SaveAllMeshesToPLY(aTotalFilename);
+		// 	// this->SavePoseGraph();
+		// }else {
+		// 	cout << "Message buf size: " << this->m_gMessageBuf.size() << endl;
+		// }
 
 	}
 
@@ -263,9 +268,9 @@ public:
 		mPoseAffine_wc.linear() = mRelPose_wc.rotation_matrix();
 		mPoseAffine_wc.translation() = mRelPose_wc.translation();
 		Eigen::Affine3f mPoseAffineFloat_wc = mPoseAffine_wc.cast<float>();
-
+		this->m_mChiselMutex.lock();
 		chisel::InverseMergeChunks(this->m_pGlobalChisel, pSubMap->m_pChisel, mPoseAffineFloat_wc);
-
+		this->m_mChiselMutex.unlock();
 		// stringstream ss;
 		// int nIndex = this->m_gSubMaps.size();
 		// string aIndex = "";
@@ -483,7 +488,138 @@ public:
 	}
 
 
+	void SendMeshes(){
+    	visualization_msgs::Marker marker;
+    	visualization_msgs::Marker marker2;
+    	for (int i=0;i<10;i++){
+    		cout << "Send Meshes!" << endl;
+    	}
+		this->m_mChiselMutex.lock();
+		this->FillMarkerTopicWithMeshes(&marker, &marker2);
+		this->m_mChiselMutex.unlock();
+		cout << "Finish filling" << endl;
+
+	    if (!marker2.points.empty())
+	    {
+	        this->m_pMeshPublisher->publish(marker);
+	        this->m_pMeshPublisher->publish(marker2);
+	        cout << "Finish send mesh" << endl;
+	    }
+
+	}
+
+	void FillMarkerTopicWithMeshes(visualization_msgs::Marker *marker, visualization_msgs::Marker *marker2)
+	{
+		
+		this->m_pGlobalChisel->UpdateMeshesInstantly();
+		
+		string baseTransform = "/base";
+	    assert(marker != nullptr);
+	    assert(marker2 != nullptr);
+	    marker2->header.stamp = ros::Time::now();
+	    marker2->header.frame_id = baseTransform;
+	    marker2->ns = "grid";
+	    marker2->type = visualization_msgs::Marker::CUBE_LIST;
+	    marker2->scale.x = this->m_pGlobalChisel->GetChunkManager().GetResolution();
+	    marker2->scale.y = this->m_pGlobalChisel->GetChunkManager().GetResolution();
+	    marker2->scale.z = this->m_pGlobalChisel->GetChunkManager().GetResolution();
+	    marker2->pose.orientation.x = 0;
+	    marker2->pose.orientation.y = 0;
+	    marker2->pose.orientation.z = 0;
+	    marker2->pose.orientation.w = 1;
+	    marker2->color.r = 1.0;
+	    marker2->color.g = 0.0;
+	    marker2->color.b = 0.0;
+	    marker2->color.a = 1.0;
+
+	    marker->header.stamp = ros::Time::now();
+	    marker->header.frame_id = baseTransform;
+	    marker->ns = "mesh";
+	    marker->scale.x = 1;
+	    marker->scale.y = 1;
+	    marker->scale.z = 1;
+	    marker->pose.orientation.x = 0;
+	    marker->pose.orientation.y = 0;
+	    marker->pose.orientation.z = 0;
+	    marker->pose.orientation.w = 1;
+	    marker->type = visualization_msgs::Marker::TRIANGLE_LIST;
+	    const chisel::MeshMap &meshMap = this->m_pGlobalChisel->GetChunkManager().GetAllMeshes();
+
+	    if (meshMap.size() == 0)
+	    {
+	        ROS_INFO("No Mesh");
+	        return;
+	    }
+
+	    chisel::Vec3 lightDir(0.8f, -0.2f, 0.7f);
+	    lightDir.normalize();
+	    chisel::Vec3 lightDir1(-0.5f, 0.2f, 0.2f);
+	    lightDir.normalize();
+	    const chisel::Vec3 ambient(0.2f, 0.2f, 0.2f);
+	    //int idx = 0;
+	    for (const std::pair<chisel::ChunkID, chisel::MeshPtr> &meshes : meshMap)
+	    {
+	        const chisel::MeshPtr &mesh = meshes.second;
+	        for (size_t i = 0; i < mesh->grids.size(); i++)
+	        {
+	            const chisel::Vec3 &vec = mesh->grids[i];
+	            geometry_msgs::Point pt;
+	            pt.x = vec[0];
+	            pt.y = vec[1];
+	            pt.z = vec[2];
+	            marker2->points.push_back(pt);
+	        }
+	        for (size_t i = 0; i < mesh->vertices.size(); i++)
+	        {
+	            const chisel::Vec3 &vec = mesh->vertices[i];
+	            geometry_msgs::Point pt;
+	            pt.x = vec[0];
+	            pt.y = vec[1];
+	            pt.z = vec[2];
+	            marker->points.push_back(pt);
+
+	            if (mesh->HasColors())
+	            {
+	                const chisel::Vec3 &meshCol = mesh->colors[i];
+	                std_msgs::ColorRGBA color;
+	                color.r = meshCol[0];
+	                color.g = meshCol[1];
+	                color.b = meshCol[2];
+	                color.a = 1.0;
+	                marker->colors.push_back(color);
+	            }
+	            else
+	            {
+	                if (mesh->HasNormals())
+	                {
+	                    const chisel::Vec3 normal = mesh->normals[i];
+	                    std_msgs::ColorRGBA color;
+	                    chisel::Vec3 lambert = chisel::LAMBERT(normal, lightDir) + chisel::LAMBERT(normal, lightDir1) + ambient;
+	                    color.r = fmin(lambert[0], 1.0);
+	                    color.g = fmin(lambert[1], 1.0);
+	                    color.b = fmin(lambert[2], 1.0);
+	                    color.a = 1.0;
+	                    marker->colors.push_back(color);
+	                }
+	                else
+	                {
+	                    std_msgs::ColorRGBA color;
+	                    color.r = vec[0] * 0.25 + 0.5;
+	                    color.g = vec[1] * 0.25 + 0.5;
+	                    color.b = vec[2] * 0.25 + 0.5;
+	                    color.a = 1.0;
+	                    marker->colors.push_back(color);
+	                }
+	            }
+	            //marker->indicies.push_back(idx);
+	            //idx++;
+	        }
+	    }
+	}
+
+
 	void RegenerateGlobalMap(){
+		this->m_mChiselMutex.lock();
 
 		//Reset the global map.
 		bool bColor = true; 
@@ -503,6 +639,9 @@ public:
 			ROS_INFO("Start to regenerate map");
 			pSubMap->RegenerateMap();
 		}
+
+		
+		this->m_mChiselMutex.unlock();
 
 		for (ServerSubMap * pSubMap : this->m_gSubMaps){
 			// cout << "Sub map size: " << this->m_gSubMaps.size() << endl;
@@ -537,6 +676,10 @@ public:
 		
 
 		}
+
+
+
+		this->SendMeshes();
 	}
 
 
@@ -567,6 +710,8 @@ public:
 	vector<ServerSubMap *> m_gSubMaps;
 
 	chisel::ChiselPtr  m_pGlobalChisel;
+
+	mutex m_mChiselMutex;
 	Sophus::SE3 m_mGlobalRefPose;
 
 	vector<chisel_msg::ChiselMapConstPtr> m_gMessageBuf;
@@ -581,6 +726,11 @@ public:
 
 	string m_aProjectPath;
 
+	ros::Publisher * m_pMeshPublisher;
+
+	void BindPublisher(ros::Publisher * pPublisher){
+		this->m_pMeshPublisher = pPublisher;
+	}
 	
 };
 

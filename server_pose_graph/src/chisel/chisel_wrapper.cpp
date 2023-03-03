@@ -103,6 +103,11 @@ float Norms(Vec3 mVec){
     return sqrt(mVec(0) * mVec(0) + mVec(1) * mVec(1) + mVec(2)* mVec(2));
 }
 
+chisel::Vec3 LAMBERT(const chisel::Vec3 &n, const chisel::Vec3 &light)
+{
+    return fmax(n.dot(light), 0.0f) * chisel::Vec3(0.5, 0.5, 0.5);
+}
+
 
 bool InverseMergeChunks(
     chisel::ChiselPtr pChiselMapRef,
