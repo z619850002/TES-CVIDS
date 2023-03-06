@@ -17,25 +17,47 @@
 
 
 
+    <arg name="sequence_G_1" default = "/media/kyrie/000021EB0006FA7D/CVIDS-RGBD/G/Sequence/Sequence1.bag" />
+
+
+
+    <arg name="sequence_G_2" default = "/media/kyrie/000021EB0006FA7D/CVIDS-RGBD/G/Sequence/Sequence2.bag" />
+
+
+
+    <arg name="sequence_G_3" default = "/media/kyrie/000021EB0006FA7D/CVIDS-RGBD/G/Sequence/Sequence3.bag" />
+
+
+
+    <arg name="sequence_G_4" default = "/media/kyrie/000021EB0006FA7D/CVIDS-RGBD/G/Sequence/Sequence4.bag" />
+
+
+    <arg name="sequence_G_3_supp" default = "/media/kyrie/000021EB0006FA7D/CVIDS-RGBD/G/Sequence/Sequence3_supp.bag" />
+
+
+    <arg name="sequence_G_4_supp" default = "/media/kyrie/000021EB0006FA7D/CVIDS-RGBD/G/Sequence/Sequence4_supp.bag" />
+
+
+
 
     
 
 
     <node pkg="rosbag" type="play" name="player1" output="log" 
-    args="-r 0.5 --start 0.0    --clock $(arg sequence_F_1) " />
+    args="-r 0.5 --start 0.0    --clock $(arg sequence_G_1) " />
 
 
 
     <node pkg="rosbag" type="play" name="player2" output="log" 
-    args="-r 0.5 --start 0.0    --clock $(arg sequence_F_2) " />
+    args="-r 0.5 --start 0.0    --clock $(arg sequence_G_2) " />
 
 
     <node pkg="rosbag" type="play" name="player3" output="log" 
-    args="-r 0.5 --start 0.0    --clock $(arg sequence_F_3) " />
+    args="-r 0.5 --start 0.0    --clock $(arg sequence_G_3_supp) " />
 
 
     <node pkg="rosbag" type="play" name="player4" output="log" 
-    args="-r 0.5 --start 0.0    --clock $(arg sequence_F_4) " />
+    args="-r 0.5 --start 0.0    --clock $(arg sequence_G_4_supp) " />
 
 
 </launch>

@@ -212,6 +212,15 @@ public:
 		Eigen::Affine3f mPoseAffineFloat_wc = mPoseAffine_wc.cast<float>();
 		cout << "Start merge chunks!" << endl;
 		
+		if (pSubMap->m_nClientID <= 3 ){
+			pSubMap->m_pChisel->GetMutableChunkManager().CutChunks(1.3);
+		}
+		if (pSubMap->m_nClientID == 4 &&  pSubMap->m_gKeyFrames[0]->m_nPublishIndex < 500)
+		{
+			pSubMap->m_pChisel->GetMutableChunkManager().CutChunks(1.3);
+		}
+		
+
 		// if (pSubMap->m_nClientID <= 3 ){
 		// 	pSubMap->m_pChisel->GetMutableChunkManager().CutChunks(1.3);
 		// }
@@ -495,6 +504,9 @@ public:
     		cout << "Send Meshes!" << endl;
     	}
 		this->m_mChiselMutex.lock();
+
+		// this->m_pGlobalChisel->GetMutableChunkManager().CutChunks(1.3);
+
 		this->FillMarkerTopicWithMeshes(&marker, &marker2);
 		this->m_mChiselMutex.unlock();
 		cout << "Finish filling" << endl;
@@ -510,9 +522,9 @@ public:
 
 	void FillMarkerTopicWithMeshes(visualization_msgs::Marker *marker, visualization_msgs::Marker *marker2)
 	{
-		
+
 		this->m_pGlobalChisel->UpdateMeshesInstantly();
-		
+
 		string baseTransform = "/base";
 	    assert(marker != nullptr);
 	    assert(marker2 != nullptr);
@@ -640,7 +652,7 @@ public:
 			pSubMap->RegenerateMap();
 		}
 
-		
+
 		this->m_mChiselMutex.unlock();
 
 		for (ServerSubMap * pSubMap : this->m_gSubMaps){
